@@ -58,11 +58,24 @@ w_bar_ij = pdist2(X_un,X_un);
 
 %calcolo il gradiente come prodotto tra matrici
 
- for j= 1:length(y_un)
-    grad = transpose(2*(y_un(j)-y_lab).'*w_ij+2*(y_un(j)-y_un).'*w_bar_ij);
+ %for j= 1:length(y_un)
+    %grad = transpose(2*transpose(y_un(j)-y_lab)*w_ij+2*transpose(y_un(j)-y_un)*w_bar_ij);
     
- end 
+ %end 
+ 
+ for j= 1:length(y_un)
+     for i = 1:length(y_lab)
+         for k= 1:length(y_un) 
+         
+    
+             grad1(j) = (2*w_ij(i,j)*(y_un(j)-y_lab(i))+2*w_bar_ij(k,j)*(y_un(k)-y_un(j)));
+         
+         end
+         
+     end
+ end
 
+ grad = transpose(grad1);
 
 %norma del gradiente
 gnr = grad.'*grad;
@@ -70,7 +83,7 @@ gnr = grad.'*grad;
 
 %% Discesa del gradiente con alpha fissato
 %Costante di Lipschitz e numero massimo di iterazioni
-lc = 12;
+lc = 100;
 alpha = 1/lc;
 maxniter = 10000;
 
@@ -116,10 +129,24 @@ while (1)
             sum2z = sum(w_bar_ij*(z.^2))+(z.^2).'*sum(w_bar_ij,2)-2*z.'*(w_bar_ij*z);
             fz=sum1z + 0.5*sum2z;
             
-                
-            for j= 1:length(z)
-            gz = transpose(2*(z(j)-y_lab).'*w_ij+2*(z(j)-y_un).'*w_bar_ij);
-            end 
+             
+          for j= 1:length(z)
+               for i = 1:length(y_lab)
+                  for k= 1:length(z) 
+         
+    
+                      grad1z(j) = (2*w_ij(i,j)*(z(j)-y_lab(i))+2*w_bar_ij(k,j)*(z(k)-z(j)));
+         
+                  end
+         
+               end
+          end    
+          
+          gz = transpose(grad1z);
+          
+            %for j= 1:length(z)
+            %gz = transpose(2*(z(j)-y_lab).'*w_ij+2*(z(j)-y_un).'*w_bar_ij);
+            %end 
            
             
             if (verbosity>0)
