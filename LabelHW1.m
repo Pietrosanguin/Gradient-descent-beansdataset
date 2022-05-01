@@ -46,10 +46,10 @@ y_lab = [y_lab1 ; y_lab2];
 
 %distanza tra unlabeled e labeled
 %w_ij = pdist2(X_lab(1,:),X_un(2,:));
-w_ij = pdist2(X_lab,X_un);
+w = pdist2(X_lab,X_un);
 
 %distanza tra i vari unlabeled 
-w_bar_ij = pdist2(X_un,X_un);
+w_bar = pdist2(X_un,X_un);
 
 %scrivo un ciclo for in cui itero itero in k ed aggiorno i gradienti
 %la funzione GM_lab calcola il gradiente in funzione del vettore di
@@ -62,20 +62,31 @@ w_bar_ij = pdist2(X_un,X_un);
     %grad = transpose(2*transpose(y_un(j)-y_lab)*w_ij+2*transpose(y_un(j)-y_un)*w_bar_ij);
     
  %end 
- 
+ first_term = zeros(length(y_un),1);
+ second_term = zeros(length(y_un),1);
+ grad = zeros(length(y_un),1);
+
  for j= 1:length(y_un)
      for i = 1:length(y_lab)
-         for k= 1:length(y_un) 
-         
-    
-             grad1(j) = (2*w_ij(i,j)*(y_un(j)-y_lab(i))+2*w_bar_ij(k,j)*(y_un(k)-y_un(j)));
-         
-         end
+
+         first_term(j) = 2*(w(i,j)*(y_un(j)-y_lab(i)));
          
      end
  end
 
- grad = transpose(grad1);
+ for j = 1:length(y_un)
+     for i = 1:length(y_un)
+     
+        second_term(j) = 2*w_bar(i,j)*(y_un(j)-y_un(i));
+
+     end
+ end
+ 
+ for j = 1:length(y_un)
+
+    grad(j) = first_term(j) + second_term(j); 
+
+ end
 
 %norma del gradiente
 gnr = grad.'*grad;
@@ -91,8 +102,8 @@ maxniter = 10000;
 it = 1;
 
 %valore della funzione
-sum1 = sum(w_ij*(y_un.^2))+(y_lab.^2).'*sum(w_ij,2)-2*y_lab.'*(w_ij*y_un);
-sum2 = sum(w_bar_ij*(y_un.^2))+(y_un.^2).'*sum(w_bar_ij,2)-2*y_un.'*(w_bar_ij*y_un);
+sum1 = sum(w*(y_un.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*y_un);
+sum2 = sum(w_bar*(y_un.^2))+(y_un.^2).'*sum(w_bar,2)-2*y_un.'*(w_bar*y_un);
 
 fx=sum1 + 0.5*sum2;   %nella notazione del prof è fx nel nostro caso sarebbe fy
 
@@ -125,8 +136,8 @@ while (1)
     gnrit(it) = -gnr;
     
             z=y_un+alpha*d;
-            sum1z = sum(w_ij*(z.^2))+(y_lab.^2).'*sum(w_ij,2)-2*y_lab.'*(w_ij*z);
-            sum2z = sum(w_bar_ij*(z.^2))+(z.^2).'*sum(w_bar_ij,2)-2*z.'*(w_bar_ij*z);
+            sum1z = sum(w*(z.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*z);
+            sum2z = sum(w_bar*(z.^2))+(z.^2).'*sum(w_bar,2)-2*z.'*(w_bar*z);
             fz=sum1z + 0.5*sum2z;
             
              
@@ -135,7 +146,7 @@ while (1)
                   for k= 1:length(z) 
          
     
-                      grad1z(j) = (2*w_ij(i,j)*(z(j)-y_lab(i))+2*w_bar_ij(k,j)*(z(k)-z(j)));
+                      grad1z(j) = (2*w(i,j)*(z(j)-y_lab(i))+2*w_bar(k,j)*(z(k)-z(j)));
          
                   end
          
@@ -195,7 +206,7 @@ disp('*****************');
 %della funzione a cui sono interesato
 %itergm è il numero di iterazioni fatte dal metodo
 [ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
-G_descent(w_ij,y_lab,w_bar_ij,y_un,lc,verb,arls,maxit,eps,fstop,stopcr);
+G_descent(w,y_lab,w_bar,y_un,lc,verb,arls,maxit,eps,fstop,stopcr);
 
 
 
