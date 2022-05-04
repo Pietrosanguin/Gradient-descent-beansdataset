@@ -69,7 +69,7 @@ verb=1;
 
 %Valore della Lipschitz constant dato a caso, bisogna calcolarlo come
 %massimo degli autovettori
-lc = 100;
+lc = 800;
 
 % starting point, sono gli unlabled
 x1= y_un;
