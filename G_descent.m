@@ -16,7 +16,7 @@
 %arls: è il tipo di Armijo line search che può essere 1 2 o 3 per il momento ho guardato solo 1 e 3 
 %verbosity: è un parametro che se >0 mostra cosa fa l'algoritmo ad ogni iterazione
 
-global lc;
+%global lc;
         
 gamma=0.0001;
 maxniter=maxit;
@@ -33,11 +33,11 @@ timeVec(1) = 0;
 %sum1 e sum2 sono la somma di tre termini che escono dallo sviluppo dei
 %quadrati
 
-sum1 = sum(w*(y_un.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*y_un);
-sum2 = sum(w_bar*(y_un.^2))+(y_un.^2).'*sum(w_bar,2)-2*y_un.'*(w_bar*y_un);
+%sum1 = sum(w*(y_un.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*y_un);
+%sum2 = sum(w_bar*(y_un.^2))+(y_un.^2).'*sum(w_bar,2)-2*y_un.'*(w_bar*y_un);
 
-fx=sum1 + 0.5*sum2;   %nella notazione del prof è fx nel nostro caso sarebbe fy
-
+%fx=sum1 + 0.5*sum2;   %nella notazione del prof è fx nel nostro caso sarebbe fy
+fx = 0;
 
 it=1;
 
@@ -121,8 +121,28 @@ while (flagls==0)
             while(1)
                 z=y_un+alpha*d;
                 %Computation of the o.f. at the trial point
-                sum1z = sum(w*(z.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*z);
-                sum2z = sum(w_bar*(z.^2))+(z.^2).'*sum(w_bar,2)-2*z.'*(w_bar*z);
+                %sum1z = sum(w*(z.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*z);
+                %sum2z = sum(w_bar*(z.^2))+(z.^2).'*sum(w_bar,2)-2*z.'*(w_bar*z);
+                
+
+                %sum1z = 0;
+                %sum2z = 0;
+
+                for i = 1:length(y_lab)
+                    for j = 1:length(y_un)
+                        
+                       sum1z = sum1z + w(i,j)*((y_un(j)-y_lab(i))^2);
+
+                    end
+                end
+
+                for i = 1:length(y_un)
+                    for j = 1:length(y_un)
+                        
+                       sum2z = sum2z + w_bar(i,j)*((y_un(i)-y_lab(j))^2);
+
+                    end
+                end
 
                 fz=sum1z + 0.5*sum2z;
                          
@@ -150,24 +170,46 @@ while (flagls==0)
                 zQz= z'*Qz;
                 cz = c'*z;
                 fz = 0.5*zQz-cz;
+
             otherwise
                %fixed alpha
                 alpha=1/lc;
                 z=y_un+alpha*d;
-                sum1z = sum(w*(z.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*z);
-                sum2z = sum(w_bar*(z.^2))+(z.^2).'*sum(w_bar,2)-2*z.'*(w_bar*z);
+                %sum1z = sum(w*(z.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*z);
+                %sum2z = sum(w_bar*(z.^2))+(z.^2).'*sum(w_bar,2)-2*z.'*(w_bar*z);
                 
-                for j= 1:length(z)
-                gz = transpose(2*(z(j)-y_lab).'*w+2*(z(j)-y_un).'*w_bar);
-    
-                end 
+                sum1z = 0;
+                sum2z = 0;
+
+                for i = 1:length(y_lab)
+                    for j = 1:length(y_un)
+                        
+                       sum1z = sum1z + w(i,j)*((z(j)-y_lab(i))^2);
+
+                    end
+                end
+
+                for i = 1:length(y_un)
+                    for j = 1:length(y_un)
+                        
+                       sum2z = sum2z + w_bar(i,j)*((z(i)-z(j))^2);
+
+                    end
+                end
 
                 fz=sum1z + 0.5*sum2z;
+                
+                %for j= 1:length(z)
+                %    gz = transpose(2*(z(j)-y_lab).'*w+2*(z(j)-y_un).'*w_bar);
+    
+                %end 
+
+                %fz=sum1z + 0.5*sum2z;
               
         end
 
         y_un=z;
-        g = gz;
+        %g = gz;
         fx = fz;
         
         
