@@ -1,4 +1,4 @@
- function [x,it,fx,ttot,fh,timeVec,gnrit] = G_descent(w,y_lab,w_bar,y_un,lc,verbosity,arls,maxit,eps,fstop,stopcr)
+function [y_un,it,fx,ttot,fh,timeVec,gnrit] = G_descent(w,y_lab,w_bar,y_un,lc,verbosity,arls,maxit,eps,fstop,stopcr)
 
 % Parametri di output della funzione: 
 %x:  è il punto di minimo a cui vogliamo convergere
@@ -28,18 +28,13 @@ flagls=0;
 tic; %fa partire il calcolo del tempo
 timeVec(1) = 0;
 
-%Values for the smart computation of the o.f. 
-%Calcolo le due parti della funzione da minimizzare e poi le sommo tra loro
-%sum1 e sum2 sono la somma di tre termini che escono dallo sviluppo dei
-%quadrati
-
-%sum1 = sum(w*(y_un.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*y_un);
-%sum2 = sum(w_bar*(y_un.^2))+(y_un.^2).'*sum(w_bar,2)-2*y_un.'*(w_bar*y_un);
-
-%fx=sum1 + 0.5*sum2;   %nella notazione del prof è fx nel nostro caso sarebbe fy
 fx = 0;
 
 it=1;
+
+first_term = zeros(length(y_un),1);
+second_term = zeros(length(y_un),1);
+g = zeros(length(y_un),1);
 
 
 while (flagls==0)
@@ -53,10 +48,6 @@ while (flagls==0)
     
     % gradient evaluation, ho sostituito il nostro gradiente con quello
     % calcolato da lui nel vecchio script
-     
-    first_term = zeros(length(y_un),1);
-    second_term = zeros(length(y_un),1);
-    g = zeros(length(y_un),1);
 
     for j= 1:length(y_un)
         for i = 1:length(y_lab)
@@ -69,7 +60,7 @@ while (flagls==0)
     for j = 1:length(y_un)
         for i = 1:length(y_un)
          
-           second_term(j) = 2*w_bar(i,j)*(y_un(j)-y_un(i));
+           second_term(j) = 2*(w_bar(i,j)*(y_un(j)-y_un(i)));
     
         end
     end
@@ -107,26 +98,20 @@ while (flagls==0)
                 error('Unknown stopping criterion');
         end % end of the stopping criteria switch
         
-        
-        
-        %linesearch
-        %arls=2;
-        
         switch arls
             case 1
-                 %Armijo search
-            alpha=3;
-            ref = gamma*gnr;
-            
-            while(1)
-                z=y_un+alpha*d;
-                %Computation of the o.f. at the trial point
-                %sum1z = sum(w*(z.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*z);
-                %sum2z = sum(w_bar*(z.^2))+(z.^2).'*sum(w_bar,2)-2*z.'*(w_bar*z);
-                
+                %Armijo search
 
-                %sum1z = 0;
-                %sum2z = 0;
+            case 2
+                %exact alpha
+
+            otherwise
+                %fixed alpha
+                alpha = 1/lc;
+                y_un = y_un + alpha*d;
+                
+                sum1z = 0;
+                sum2z = 0;
 
                 for i = 1:length(y_lab)
                     for j = 1:length(y_un)
@@ -139,78 +124,14 @@ while (flagls==0)
                 for i = 1:length(y_un)
                     for j = 1:length(y_un)
                         
-                       sum2z = sum2z + w_bar(i,j)*((y_un(i)-y_lab(j))^2);
+                       sum2z = sum2z + w_bar(i,j)*((y_un(i)-y_un(j))^2);
 
                     end
                 end
 
-                fz=sum1z + 0.5*sum2z;
-                         
-                if (fz<=fx+alpha*ref)
-                    z = y_un + alpha*d;
-                    break;
-                else
-                    alpha=alpha*0.1;
-                end
-                
-                if (alpha <= 1e-20)
-                    z=y_un;
-                    fz=fx;
-                    flagls=1;
-                    it = it-1;
-                    break;
-                end
-                
-            end
-            case 2
-                %exact alpha
-                alpha=-gnr/((d'*Q)*d);
-                z=x+alpha*d;
-                Qz = Q*z;
-                zQz= z'*Qz;
-                cz = c'*z;
-                fz = 0.5*zQz-cz;
-
-            otherwise
-               %fixed alpha
-                alpha=1/lc;
-                z=y_un+alpha*d;
-                %sum1z = sum(w*(z.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*z);
-                %sum2z = sum(w_bar*(z.^2))+(z.^2).'*sum(w_bar,2)-2*z.'*(w_bar*z);
-                
-                sum1z = 0;
-                sum2z = 0;
-
-                for i = 1:length(y_lab)
-                    for j = 1:length(y_un)
-                        
-                       sum1z = sum1z + w(i,j)*((z(j)-y_lab(i))^2);
-
-                    end
-                end
-
-                for i = 1:length(y_un)
-                    for j = 1:length(y_un)
-                        
-                       sum2z = sum2z + w_bar(i,j)*((z(i)-z(j))^2);
-
-                    end
-                end
-
-                fz=sum1z + 0.5*sum2z;
-                
-                %for j= 1:length(z)
-                %    gz = transpose(2*(z(j)-y_lab).'*w+2*(z(j)-y_un).'*w_bar);
-    
-                %end 
-
-                %fz=sum1z + 0.5*sum2z;
+                fx=sum1z + 0.5*sum2z;
               
         end
-
-        y_un=z;
-        %g = gz;
-        fx = fz;
         
         
         if (verbosity>0)

@@ -7,6 +7,7 @@
 
 %provo con il linkage
 %numero di punti casuali da generare
+%%
 punti = 1000;
 
 rng('default'); % For reproducibility
@@ -35,6 +36,8 @@ y_lab1 = g(g(:,1) == 1, : );
 y_lab2 = g(g(:,1) == -1, : );
 y_un = g(g(:,1) == 0, : );
 
+
+
 %unisco i dati labled in un unica matrice
 X_lab = [X_lab1 ; X_lab2];
 
@@ -46,12 +49,12 @@ y_lab = [y_lab1 ; y_lab2];
 
 %distanza tra unlabeled e labeled
 %w_ij = pdist2(X_lab(1,:),X_un(2,:));
-w = pdist2(X_lab,X_un);
+w = 1\pdist2(X_lab,X_un);
 
 %distanza tra i vari unlabeled 
-w_bar = pdist2(X_un,X_un);
+w_bar = 1\pdist2(X_un,X_un);
 
-
+%%
 %contatore di iterazioni
 it = 1;
 
@@ -69,10 +72,7 @@ verb=1;
 
 %Valore della Lipschitz constant dato a caso, bisogna calcolarlo come
 %massimo degli autovettori
-lc = 800;
-
-% starting point, sono gli unlabled
-x1= y_un;
+lc = 100;
 
 fstop = 0;
 maxit = 10000;
@@ -83,9 +83,9 @@ disp('*  GM STANDARD  *');
 disp('*****************');
 
 %ygm è il vettore delle previsioni prodotte dal metodo (cioè il minimo
-%della funzione a cui sono interesato
+%della funzione a cui sono interessato)
 %itergm è il numero di iterazioni fatte dal metodo
-[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
+[y_un,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
 G_descent(w,y_lab,w_bar,y_un,lc,verb,arls,maxit,eps,fstop,stopcr);
 
 
