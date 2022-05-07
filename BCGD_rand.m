@@ -52,7 +52,7 @@ for j = 1:length(y_un)
     
 end
 
-
+alpha=1/lc;
 while (flagls==0)
     %vectors updating
     if (it==1)
@@ -70,12 +70,10 @@ while (flagls==0)
     %Considero una distribuzione uniforme da cui estrarre casualmente
     %il blocco
     %fixed alpha
-                
-    alpha=1/lc;
+               
     %ik = randi([1 b],1); %estrae uniformemente un numero tra 1 e b
     reset(RandStream.getGlobalStream,sum(100*clock));
     ik=randi(1954,1);
-
 
     first_term_it = 2*(sum(w(:,ik))*y_un(ik))-2*transpose(y_lab)*w(:,ik);
     second_term_it = 2*sum(w_bar(:,ik))*y_un(ik)-2*transpose(y_un)*w_bar(:,ik);
@@ -122,7 +120,7 @@ while (flagls==0)
                 for i = 1:length(y_lab)
                     for j = 1:length(y_un)
                         
-                       sum1z = sum1z + w(i,j)*((z(j)-y_lab(i))^2);
+                       sum1z = sum1z + w(i,j)*((y_un(j)-y_lab(i))^2);
 
                     end
                 end
@@ -130,7 +128,7 @@ while (flagls==0)
                 for i = 1:length(y_un)
                     for j = 1:length(y_un)
                         
-                       sum2z = sum2z + w_bar(i,j)*((z(i)-z(j))^2);
+                       sum2z = sum2z + w_bar(i,j)*((y_un(i)-y_un(j))^2);
 
                     end
                 end

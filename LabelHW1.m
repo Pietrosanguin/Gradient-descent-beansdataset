@@ -39,8 +39,8 @@ y_un = g(g(:,1) == 0, : );
 
 %b = length(y_un);
 %ik = randi([1 b],1);
-reset(RandStream.getGlobalStream,sum(100*clock));
-a=randi(1954,1);
+%reset(RandStream.getGlobalStream,sum(1*clock));
+%a=randi(1954,1);
 
 
 
@@ -96,7 +96,7 @@ lc = max(autovalori);
 sigma = min(autovalori);
 
 fstop = 0;
-maxit = 10000;
+maxit = 2000;
 %l'armijo (arls=1) non funziona
 arls=3;
 
@@ -112,9 +112,11 @@ disp('*****************');
 %G_descent(w,y_lab,w_bar,y_un,lc,verb,arls,maxit,eps,fstop,stopcr);
 
 
-[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
-BCGD_rand(w,y_lab,w_bar,y_un,lc,verb,maxit,eps,fstop,stopcr);
+%[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
+%BCGD_rand(w,y_lab,w_bar,y_un,lc,verb,maxit,eps,fstop,stopcr);
 
+[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
+BCGD_cyclic(w,y_lab,w_bar,y_un,lc,verb,maxit,eps,fstop,stopcr);
 
 
 % Print results:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -155,12 +157,24 @@ xlabel('iter');
 %ylim([10^(-5),10^4]); 
 ylabel('err');
 
+
+
 % Plot del clustering stimato arrotondando ygm
-hei=round(ygm);
+
+%gscatter(X_lab(:,1),X_lab(:,2),y_lab);
+%grid on;
+%title('Predicted clustering');
+%hold on
+%gscatter(X_un(:,1),X_un(:,2),round(ygm));
+%hold off
+
+
+
+hvsd = @(x) [0.5*(x == 0) + (x > 0)];
 
 gscatter(X_lab(:,1),X_lab(:,2),y_lab);
 grid on;
 title('Predicted clustering');
 hold on
-gscatter(X_un(:,1),X_un(:,2),round(ygm));
+gscatter(X_un(:,1),X_un(:,2),hvsd(ygm)-hvsd(-ygm));
 hold off
