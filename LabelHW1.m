@@ -98,8 +98,13 @@ disp('*****************');
 %ygm è il vettore delle previsioni prodotte dal metodo (cioè il minimo
 %della funzione a cui sono interesato
 %itergm è il numero di iterazioni fatte dal metodo
+
+%[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
+%G_descent(w,y_lab,w_bar,y_un,lc,verb,arls,maxit,eps,fstop,stopcr);
+
+
 [ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
-G_descent(w,y_lab,w_bar,y_un,lc,verb,arls,maxit,eps,fstop,stopcr);
+BCGD_rand(w,y_lab,w_bar,y_un,lc,verb,maxit,eps,fstop,stopcr);
 
 
 
