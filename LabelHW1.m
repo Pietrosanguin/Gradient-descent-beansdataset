@@ -7,6 +7,7 @@
 
 %provo con il linkage
 %numero di punti casuali da generare
+
 punti = 1000;
 
 rng('default'); % For reproducibility
@@ -34,6 +35,14 @@ X_un = X(g(:,1) == 0, : );
 y_lab1 = g(g(:,1) == 1, : );
 y_lab2 = g(g(:,1) == -1, : );
 y_un = g(g(:,1) == 0, : );
+
+
+%b = length(y_un);
+%ik = randi([1 b],1);
+reset(RandStream.getGlobalStream,sum(100*clock));
+a=randi(1954,1);
+
+
 
 %unisco i dati labled in un unica matrice
 X_lab = [X_lab1 ; X_lab2];

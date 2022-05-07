@@ -24,12 +24,33 @@ gnrit=zeros(1,maxit);
 timeVec=zeros(1,maxit);
 flagls=0;
 
+first_term_it = 0;
+second_term_it = 0;
+g_it = 0;
+
+tic; %fa partire il calcolo del tempo
+timeVec(1) = 0;
+
 first_term = zeros(length(y_un),1);
 second_term = zeros(length(y_un),1);
 g = zeros(length(y_un),1);
 
-tic; %fa partire il calcolo del tempo
-timeVec(1) = 0;
+for j= 1:length(y_un)
+        
+    first_term(j) = 2*(sum(w(:,j))*y_un(j))-2*transpose(y_lab)*w(:,j);
+end
+    
+for j = 1:length(y_un)
+         
+    second_term(j) = 2*sum(w_bar(:,j))*y_un(j)-2*transpose(y_un)*w_bar(:,j);
+ 
+end
+     
+for j = 1:length(y_un)
+    
+    g(j) = first_term(j) + second_term(j); 
+    
+end
 
 
 while (flagls==0)
@@ -43,25 +64,28 @@ while (flagls==0)
     
     % gradient evaluation
     
-    for j= 1:length(y_un)
-        
-            first_term(j) = 2*(sum(w(:,j))*y_un(j))-2*transpose(y_lab)*w(:,j);
-    end
-    
-    for j = 1:length(y_un)
-         
-           second_term(j) = 2*sum(w_bar(:,j))*y_un(j)-2*transpose(y_un)*w_bar(:,j);
- 
-    end
-     
-    for j = 1:length(y_un)
-    
-       g(j) = first_term(j) + second_term(j); 
-    
-    end  
-    
 
-    d=-g;
+    %Qui inizia l'algoritmo BCGD randomized
+        
+    %Considero una distribuzione uniforme da cui estrarre casualmente
+    %il blocco
+    %fixed alpha
+                
+    alpha=1/lc;
+    %ik = randi([1 b],1); %estrae uniformemente un numero tra 1 e b
+    reset(RandStream.getGlobalStream,sum(100*clock));
+    ik=randi(1954,1);
+
+
+    first_term_it = 2*(sum(w(:,ik))*y_un(ik))-2*transpose(y_lab)*w(:,ik);
+    second_term_it = 2*sum(w_bar(:,ik))*y_un(ik)-2*transpose(y_un)*w_bar(:,ik);
+    g_it = first_term_it + second_term_it;  
+    d_it=-g_it;
+
+    g(ik) = g_it;
+    d = -g;
+
+    z=y_un+alpha*U(:,ik)*d_it;
     
     %gnr è la norma del gradiente, viene salvata nel vettore gnrit per ogni
     %iterazione it
@@ -88,14 +112,7 @@ while (flagls==0)
                 error('Unknown stopping criterion');
         end % end of the stopping criteria switch
         
-        %Qui inizia l'algoritmo BCGD randomized
-        
-        %Considero una distribuzione uniforme da cui estrarre casualmente
-        %il blocco
-               %fixed alpha
-                alpha=1/lc;
-                ik = randi([1 b],1); %estrae uniformemente un numero tra 1 e b
-                z=y_un+alpha*U(:,ik)*d(ik);
+
                 %sum1z = sum(w*(z.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*z);
                 %sum2z = sum(w_bar*(z.^2))+(z.^2).'*sum(w_bar,2)-2*z.'*(w_bar*z);
                 
