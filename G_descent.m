@@ -78,7 +78,7 @@ while (flagls==0)
     
     %gnr è la norma del gradiente, viene salvata nel vettore gnrit per ogni
     %iterazione it
-    gnr = g'*d;
+    gnr = norm(g);%g'*d;
     gnrit(it) = -gnr;
         
         % stopping criteria and test for termination
@@ -165,7 +165,7 @@ while (flagls==0)
 
             otherwise
                %fixed alpha
-                alpha=1/lc;
+                alpha=0.01;
                 z=y_un+alpha*d;
                 %sum1z = sum(w*(z.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*z);
                 %sum2z = sum(w_bar*(z.^2))+(z.^2).'*sum(w_bar,2)-2*z.'*(w_bar*z);

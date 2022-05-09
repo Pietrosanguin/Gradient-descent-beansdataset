@@ -14,7 +14,7 @@ U = eye(length(y_un));
 b = length(y_un);
 
 
-fx = 0;
+fx = 10000000;
 it=1;
 
 
@@ -84,7 +84,7 @@ while (flagls==0)
             
             %gnr è la norma del gradiente, viene salvata nel vettore gnrit per ogni
             %iterazione it
-            gnr = g'*d;
+            gnr = norm(g);%g'*d;
             gnrit(it) = -gnr;
             
             % stopping criteria and test for termination

@@ -8,6 +8,8 @@
 %provo con il linkage
 %numero di punti casuali da generare
 
+
+
 punti = 1000;
 
 rng('default'); % For reproducibility
@@ -23,7 +25,7 @@ g=lab_mach(y);
 gscatter(X(:,1),X(:,2),g);
 grid on;
 title('Randomly Generated Data');
-
+%%
 %numero di punti etichettati
 n_lab = sum(abs(g));
 
@@ -36,7 +38,7 @@ y_lab1 = g(g(:,1) == 1, : );
 y_lab2 = g(g(:,1) == -1, : );
 y_un = g(g(:,1) == 0, : );
 
-
+%%
 %b = length(y_un);
 %ik = randi([1 b],1);
 %reset(RandStream.getGlobalStream,sum(1*clock));
@@ -48,7 +50,6 @@ y_un = g(g(:,1) == 0, : );
 X_lab = [X_lab1 ; X_lab2];
 
 y_lab = [y_lab1 ; y_lab2];
-
 
 %Considero come similarity measure la distanza euclidea (volendo si può
 %cambiare in minkowski)
@@ -67,7 +68,7 @@ w_bar = exp(-pdist2(X_un,X_un));
 it = 1;
 
 % Optimality tolerance:
-eps = 1.0e-4;
+eps = 1.0e-1;
 
 % Stopping criterion
 %
@@ -95,8 +96,8 @@ lc = max(autovalori);
 
 sigma = min(autovalori);
 
-fstop = 0;
-maxit = 2000;
+fstop = 10;
+maxit = 1000000;
 %l'armijo (arls=1) non funziona
 arls=3;
 
@@ -108,15 +109,15 @@ disp('*****************');
 %della funzione a cui sono interesato
 %itergm è il numero di iterazioni fatte dal metodo
 
-%[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
-%G_descent(w,y_lab,w_bar,y_un,lc,verb,arls,maxit,eps,fstop,stopcr);
+[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
+G_descent(w,y_lab,w_bar,y_un,lc,verb,arls,maxit,eps,fstop,stopcr);
 
 
 %[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
 %BCGD_rand(w,y_lab,w_bar,y_un,lc,verb,maxit,eps,fstop,stopcr);
 
-[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
-BCGD_cyclic(w,y_lab,w_bar,y_un,lc,verb,maxit,eps,fstop,stopcr);
+%[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
+%BCGD_cyclic(w,y_lab,w_bar,y_un,lc,verb,maxit,eps,fstop,stopcr);
 
 
 % Print results:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -171,6 +172,17 @@ ylabel('err');
 
 
 hvsd = @(x) [0.5*(x == 0) + (x > 0)];
+
+
+ygm_rounded = hvsd(ygm);
+Y_true = ones(length(ygm_rounded));
+counter = 0;
+for i = 1:length(ygm_rounded)
+    if (ygm_rounded(i) == Y_true(i))
+        counter = counter + 1;
+    end
+end
+accuracy = counter/length(ygm_rounded);
 
 gscatter(X_lab(:,1),X_lab(:,2),y_lab);
 grid on;
