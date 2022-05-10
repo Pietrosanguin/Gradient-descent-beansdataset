@@ -1,4 +1,4 @@
- function [x,it,fx,ttot,fh,timeVec,gnrit,accuracy] = G_descent(w,y_lab,w_bar,y_un,y_un_true,lc,verbosity,arls,maxit,eps,fstop,stopcr)
+function [y_un,it,fy,ttot,fh,timeVec,gnrit,accuracy] = G_descent(w,y_lab,w_bar,y_un,y_un_true,lc,verbosity,maxit,eps,fstop,stopcr)
 
 % Parametri di output della funzione: 
 %x:  è il punto di minimo a cui vogliamo convergere
@@ -19,7 +19,7 @@
 
 hvsd = @(x) [0.5*(x == 0) + (x > 0)];
         
-gamma=0.0001;
+%gamma=0.0001;
 maxniter=maxit;
 fh=zeros(1,maxit);
 gnrit=zeros(1,maxit);
@@ -35,14 +35,10 @@ timeVec(1) = 0;
 %sum1 e sum2 sono la somma di tre termini che escono dallo sviluppo dei
 %quadrati
 
-%sum1 = sum(w*(y_un.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*y_un);
-%sum2 = sum(w_bar*(y_un.^2))+(y_un.^2).'*sum(w_bar,2)-2*y_un.'*(w_bar*y_un);
-
-%fx=sum1 + 0.5*sum2;   %nella notazione del prof è fx nel nostro caso sarebbe fy
-
-fx = 0;
+fy = 10000;
 
 it=1;
+alpha=1/lc;
 
 first_term = zeros(length(y_un),1);
 second_term = zeros(length(y_un),1);
@@ -56,7 +52,7 @@ while (flagls==0)
     else
         timeVec(it) = toc;
     end
-    fh(it)=fx;
+    fh(it)=fy;
     
     % gradient evaluation
     
@@ -75,157 +71,78 @@ while (flagls==0)
     
        g(j) = first_term(j) + second_term(j); 
     
-    end  
+    end
     
+    %gnr is the gradient's norm, gnrit saves its value at each iteration
 
-    d=-g;
-    
-    %gnr è la norma del gradiente, viene salvata nel vettore gnrit per ogni
-    %iterazione it
-    gnr = norm(g);%g'*d;
+    gnr = norm(g);
     gnrit(it) = -gnr;
         
         % stopping criteria and test for termination
     if (it>=maxniter)
         break;
     end
-        switch stopcr  
-            case 1
-                % continue if not yet reached target value fstop
-                if (fx<=fstop)
-                    break
-                end
-            case 2
-                % stopping criterion based on the product of the 
-                % gradient with the direction
-                if (abs(gnr) <= eps)
-                    break;
-                end
-            otherwise
-                error('Unknown stopping criterion');
-        end % end of the stopping criteria switch
-        
-        
-        
-        %linesearch
-                
-        switch arls
-            case 1
-                 %Armijo search
-            alpha=3;
-            ref = gamma*gnr;
-            
-            while(1)
-                z=y_un+alpha*d;
-                %Computation of the o.f. at the trial point
-                %sum1z = sum(w*(z.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*z);
-                %sum2z = sum(w_bar*(z.^2))+(z.^2).'*sum(w_bar,2)-2*z.'*(w_bar*z);
-                
-                sum1z = 0;
-                sum2z = 0;
-                
-                for i = 1:length(y_lab)
-                    for j = 1:length(y_un)
-                        
-                       sum1z = sum1z + w(i,j)*((z(j)-y_lab(i))^2);
 
-                    end
-                end
-
-                for i = 1:length(y_un)
-                    for j = 1:length(y_un)
-                        
-                       sum2z = sum2z + w_bar(i,j)*((z(i)-z(j))^2);
-
-                    end
-                end
-
-                fz=sum1z + 0.5*sum2z;
-                         
-                if (fz<=fx+alpha*ref)
-                    z = y_un + alpha*d;
-                    break;
-                else
-                    alpha=alpha*0.1;
-                end
-                
-                if (alpha <= 1e-20)
-                    z=y_un;
-                    fz=fx;
-                    flagls=1;
-                    it = it-1;
-                    break;
-                end
-                
+    switch stopcr  
+        case 1
+            % continue if not yet reached target value fstop
+            if (fy<=fstop)
+                break
             end
-            
-            otherwise
-               %fixed alpha
-                alpha=1/lc;
-                z=y_un+alpha*d;
-                %sum1z = sum(w*(z.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*z);
-                %sum2z = sum(w_bar*(z.^2))+(z.^2).'*sum(w_bar,2)-2*z.'*(w_bar*z);
-                
-                sum1z = 0;
-                sum2z = 0;
-
-                for i = 1:length(y_lab)
-                    for j = 1:length(y_un)
-                        
-                       sum1z = sum1z + w(i,j)*((z(j)-y_lab(i))^2);
-
-                    end
-                end
-
-                for i = 1:length(y_un)
-                    for j = 1:length(y_un)
-                        
-                       sum2z = sum2z + w_bar(i,j)*((z(i)-z(j))^2);
-
-                    end
-                end
-
-                fz=sum1z + 0.5*sum2z;
-                
-                %for j= 1:length(z)
-                %    gz = transpose(2*(z(j)-y_lab).'*w+2*(z(j)-y_un).'*w_bar);
+        case 2
+            % stopping criterion based on the product of the 
+            % gradient with the direction
+            if (abs(gnr) <= eps)
+                break;
+            end
+        otherwise
+            error('Unknown stopping criterion');
+    end % end of the stopping criteria switch
     
-                %end 
-                
-        
+         
+    y_un=y_un-alpha*g;
+    
+    sum1 = 0;
+    sum2 = 0;
 
-                              
+    for i = 1:length(y_lab)
+        for j = 1:length(y_un)
+            
+           sum1 = sum1 + w(i,j)*((y_un(j)-y_lab(i))^2);
+
         end
-       
-        y_un=z;
-        fx = fz;
-        accuracy(it) = sum(y_un_true == hvsd(y_un)-hvsd(-y_un),'all')/numel(y_un);
-       
-        
-        
-        if (verbosity>0)
-            disp(['-----------------** ' num2str(it) ' **------------------']);
-            disp(['gnr      = ' num2str(abs(gnr))]);
-            disp(['f(y)     = ' num2str(fx)]);
-            disp(['alpha     = ' num2str(alpha)]);
-            disp(['accuracy max    = ' num2str(max(accuracy))]); 
+    end
+
+    for i = 1:length(y_un)
+        for j = 1:length(y_un)
+            
+           sum2 = sum2 + w_bar(i,j)*((y_un(i)-y_un(j))^2);
+
         end
-                     
-        it = it+1;
-        
-        
-end
+    end
 
-x=z;
+    fy=sum1 + 0.5*sum2;
+   
+    accuracy(it) = sum(y_un_true == hvsd(y_un)-hvsd(-y_un),'all')/numel(y_un);
+       
+    if (verbosity>0)
+        disp(['-----------------** ' num2str(it) ' **------------------']);
+        disp(['gnr      = ' num2str(abs(gnr))]);
+        disp(['f(y)     = ' num2str(fy)]);
+        disp(['alpha     = ' num2str(alpha)]);
+        disp(['accuracy max    = ' num2str(max(accuracy))]); 
+    end
+                 
+    it = it+1;
+    
+    if(it<maxit)
+        fh(it+1:maxit)=fh(it);
+        gnrit(it+1:maxit)=gnrit(it);
+        timeVec(it+1:maxit)=timeVec(it);
+    end
 
-if(it<maxit)
-    fh(it+1:maxit)=fh(it);
-    gnrit(it+1:maxit)=gnrit(it);
-    timeVec(it+1:maxit)=timeVec(it);
-end
 
-
-ttot = toc;
+    ttot = toc;
 
 
 end

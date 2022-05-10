@@ -6,8 +6,12 @@ punti = 1000;
 rng('default'); % For reproducibility
 
 %coppie di punti con coordinate in 2d
-X = [(randn(punti,2)*(0.75))+3;
-    (randn(punti,2)*1)-2];
+%X = [(randn(punti,2)*(0.2))-2;
+%    (randn(punti,2)*(0.2))-2];
+X1 = 5*[randn(punti,1)-5,randn(punti,1)+5];
+X2 = 5*[randn(punti,1)-5,randn(punti,1)-5];
+X = [X1;X2];
+
 
 %etichettare casualmente il 3% dei dati
 y = [ones(punti,1);-ones(punti,1)];
@@ -15,10 +19,12 @@ g = lab_mach(y);
 
 %plot dei punti casuali con etichette
 figure(1)
-gscatter(X(:,1),X(:,2),g);
+gscatter(X(:,1),X(:,2),g,"rcb");
 grid on;
 title('Randomly Generated Data');
 
+
+%%
 %numero di punti etichettati
 n_lab = sum(abs(g));
 
@@ -78,7 +84,7 @@ lc = max(autovalori);
 sigma = min(autovalori);
 
 fstop = 10;
-maxit = 100;
+maxit = 1000;
 %l'armijo (arls=1) non funziona
 arls=3;
 
@@ -93,7 +99,7 @@ disp('*****************');
 %itergm è il numero di iterazioni fatte dal metodo
 
 [ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
-G_descent(w,y_lab,w_bar,y_un,y_un_true,lc,verb,arls,maxit,eps,fstop,stopcr);
+G_descent(w,y_lab,w_bar,y_un,y_un_true,lc,verb,maxit,eps,fstop,stopcr);
 
 
 %[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
@@ -183,9 +189,9 @@ hvsd = @(x) [0.5*(x == 0) + (x > 0)];
 %Questo plot dipende dalla funzione di attivazione 
 %hvsd e round producono due risultati diversi
 figure(5)
-gscatter(X_lab(:,1),X_lab(:,2),y_lab);
+gscatter(X_lab(:,1),X_lab(:,2),y_lab),"rcb";
 grid on;
 title('Predicted clustering');
 hold on
-gscatter(X_un(:,1),X_un(:,2),hvsd(ygm)-hvsd(-ygm));
+gscatter(X_un(:,1),X_un(:,2),round(ygm),"rcb");
 hold off
