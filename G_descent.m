@@ -1,4 +1,4 @@
- function [x,it,fx,ttot,fh,timeVec,gnrit] = G_descent(w,y_lab,w_bar,y_un,lc,verbosity,arls,maxit,eps,fstop,stopcr)
+ function [x,it,fx,ttot,fh,timeVec,gnrit,accuracy] = G_descent(w,y_lab,w_bar,y_un,y_un_true,lc,verbosity,arls,maxit,eps,fstop,stopcr)
 
 % Parametri di output della funzione: 
 %x:  è il punto di minimo a cui vogliamo convergere
@@ -8,6 +8,7 @@
 %fh: è un array che contiene il valore della funzione all'iterazione it
 %timeVec: è un array che contiene il cpu time ad ogni iterazione
 %gnrit: è la norma del gradiente ad ogni iterazione it
+%y_un_true è il vettore con le classi vere dei punti y_un
 %
 % Parametri di input
 %y_un che do' in input è lo starting point
@@ -15,12 +16,15 @@
 %lc: è la costante di Lipschitz (poi vedremo come determinarla)
 %arls: è il tipo di Armijo line search che può essere 1 2 o 3 per il momento ho guardato solo 1 e 3 
 %verbosity: è un parametro che se >0 mostra cosa fa l'algoritmo ad ogni iterazione
+
+hvsd = @(x) [0.5*(x == 0) + (x > 0)];
         
 gamma=0.0001;
 maxniter=maxit;
 fh=zeros(1,maxit);
 gnrit=zeros(1,maxit);
 timeVec=zeros(1,maxit);
+accuracy=zeros(1,maxit);
 flagls=0;
 
 tic; %fa partire il calcolo del tempo
@@ -154,18 +158,10 @@ while (flagls==0)
                 end
                 
             end
-            case 2
-                %exact alpha
-                alpha=-gnr/((d'*Q)*d);
-                z=x+alpha*d;
-                Qz = Q*z;
-                zQz= z'*Qz;
-                cz = c'*z;
-                fz = 0.5*zQz-cz;
-
+            
             otherwise
                %fixed alpha
-                alpha=0.01;
+                alpha=1/lc;
                 z=y_un+alpha*d;
                 %sum1z = sum(w*(z.^2))+(y_lab.^2).'*sum(w,2)-2*y_lab.'*(w*z);
                 %sum2z = sum(w_bar*(z.^2))+(z.^2).'*sum(w_bar,2)-2*z.'*(w_bar*z);
@@ -203,6 +199,7 @@ while (flagls==0)
        
         y_un=z;
         fx = fz;
+        accuracy(it) = sum(y_un_true == hvsd(y_un)-hvsd(-y_un),'all')/numel(y_un);
        
         
         
@@ -210,7 +207,8 @@ while (flagls==0)
             disp(['-----------------** ' num2str(it) ' **------------------']);
             disp(['gnr      = ' num2str(abs(gnr))]);
             disp(['f(y)     = ' num2str(fx)]);
-            disp(['alpha     = ' num2str(alpha)]);                    
+            disp(['alpha     = ' num2str(alpha)]);
+            disp(['accuracy max    = ' num2str(max(accuracy))]); 
         end
                      
         it = it+1;

@@ -1,4 +1,4 @@
-function [x,it,fx,ttot,fh,timeVec,gnrit] = BCGD_cyclic(w,y_lab,w_bar,y_un,lc,verbosity,maxit,eps,fstop,stopcr)
+function [x,it,fx,ttot,fh,timeVec,gnrit,accuracy] = BCGD_cyclic(w,y_lab,w_bar,y_un,y_un_true,lc,verbosity,maxit,eps,fstop,stopcr)
 %BCGD_RAND La funzione implementa il BCGD method con randomized block
 %coordinate
 
@@ -17,12 +17,14 @@ b = length(y_un);
 fx = 10000000;
 it=1;
 
+hvsd = @(x) [0.5*(x == 0) + (x > 0)];
 
 maxniter=maxit;
 fh=zeros(1,maxit);
 gnrit=zeros(1,maxit);
 timeVec=zeros(1,maxit);
 flagls=0;
+accuracy=zeros(1,maxit);
 
 first_term_it = 0;
 second_term_it = 0;
@@ -131,6 +133,7 @@ while (flagls==0)
        
             y_un=z;
             fx = fz;
+            accuracy(it) = sum(y_un_true == hvsd(y_un)-hvsd(-y_un),'all')/numel(y_un);
            
             
             
@@ -138,7 +141,8 @@ while (flagls==0)
                 disp(['-----------------** ' num2str(it) ' **------------------']);
                 disp(['gnr      = ' num2str(abs(gnr))]);
                 disp(['f(y)     = ' num2str(fx)]);
-                disp(['alpha     = ' num2str(alpha)]);                    
+                disp(['alpha     = ' num2str(alpha)]);
+                disp(['accuracy max    = ' num2str(max(accuracy))]);
             end
         
         
