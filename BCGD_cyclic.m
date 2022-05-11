@@ -1,17 +1,4 @@
 function [y_un,it,fy,ttot,fh,timeVec,gnrit,accuracy] = BCGD_cyclic(w,y_lab,w_bar,y_un,y_un_true,lc,verbosity,maxit,eps,fstop,stopcr)
-%BCGD_CYCLIC La funzione implementa il BCGD method con randomized block
-%coordinate
-
-%input: 
-%i blocchi devono avere dimensione 1 b=length(y_un), perciò ho implementato
-%direttamente la matrice identità senza passare b alla funzione
-%y_un variabile per cui minimizzo
-
-%definisco la matrice di blocchi identità
-U = eye(length(y_un));
-
-%I blocchi hanno dimensione uno perciò b è:
-b = length(y_un);
 
 it=1;
 
@@ -28,7 +15,7 @@ first_term_it = 0;
 second_term_it = 0;
 g_it = 0;
 
-tic; %fa partire il calcolo del tempo
+tic;
 timeVec(1) = 0;
 
 first_term = zeros(length(y_un),1);
@@ -53,11 +40,13 @@ for j = 1:length(y_un)
 end
 
 
-count = 0;
+count = 0; % Counter for cyclic through the entries of the gradient 
 alpha=1/lc;
 
 while (flagls==0)
-    %vectors updating
+
+    % Vectors updating
+    
     if (it==1)
         timeVec(it) = 0;
     else
@@ -65,7 +54,6 @@ while (flagls==0)
     end
     
     % GRADIENT EVALUATION
-
     
     if (count == length(y_un))
         count = 0;
@@ -78,10 +66,12 @@ while (flagls==0)
 
     g(count) = g_it;
 
-    y_un=y_un-alpha*U(:,count)*g_it;
+    temp = zeros(length(y_un),1); 
+    temp(count) = g_it; 
+    y_un = y_un-alpha*temp;
     
-    %gnr è la norma del gradiente, viene salvata nel vettore gnrit per ogni
-    %iterazione it
+    %gnr is the gradient's norm, gnrit saves its value at each iteration
+
     gnr = norm(g);
     gnrit(it) = -gnr;
     
@@ -89,20 +79,25 @@ while (flagls==0)
     if (it>=maxniter)
         break;
     end
-    switch stopcr  
+
+    switch stopcr
+
         case 1
             % continue if not yet reached target value fstop
             if (fy<=fstop)
                 break
             end
+
         case 2
             % stopping criterion based on the product of the 
             % gradient with the direction
             if (abs(gnr) <= eps)
                 break;
             end
+
         otherwise
             error('Unknown stopping criterion');
+            
     end % end of the stopping criteria switch
         
     sum1 = 0;

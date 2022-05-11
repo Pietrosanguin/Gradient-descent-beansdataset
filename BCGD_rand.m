@@ -1,18 +1,5 @@
 function [y_un,it,fy,ttot,fh,timeVec,gnrit,accuracy] = BCGD_rand(w,y_lab,w_bar,y_un,y_un_true,lc,verbosity,maxit,eps,fstop,stopcr)
-%BCGD_RAND La funzione implementa il BCGD method con randomized block
-%input: 
-%i blocchi devono avere dimensione 1 b=length(y_un), perciò ho implementato
-%direttamente la matrice identità senza passare b alla funzione
-%y_un variabile per cui minimizzo
 
-%definisco la matrice di blocchi identità
-U = eye(length(y_un));
-
-%Blocks have size = 1 therefore b is:
-b = length(y_un);
-
-
-%fy = 100000;
 it=1;
 
 hvsd = @(x) [0.5*(x == 0) + (x > 0)];
@@ -28,7 +15,7 @@ first_term_it = 0;
 second_term_it = 0;
 g_it = 0;
 
-tic; %fa partire il calcolo del tempo
+tic;
 timeVec(1) = 0;
 
 first_term = zeros(length(y_un),1);
@@ -54,7 +41,9 @@ end
 
 alpha=1/lc;
 while (flagls==0)
-    %vectors updating
+    
+    % Vectors updating
+    
     if (it==1)
         timeVec(it) = 0;
     else
@@ -65,7 +54,7 @@ while (flagls==0)
     
     % Random selection of a block
     reset(RandStream.getGlobalStream,sum(100*clock));
-    ik=randi(b,1);
+    ik=randi(length(y_un),1);
     
     % Computation of the gradient only in the randomized ik entry
     first_term_it = 2*(sum(w(:,ik))*y_un(ik))-2*transpose(y_lab)*w(:,ik);
@@ -74,33 +63,40 @@ while (flagls==0)
 
     % Gradient update in the updated position ik
     g(ik) = g_it;
-
-    y_un=y_un-alpha*U(:,ik)*g_it;
     
-    %gnr è la norma del gradiente, viene salvata nel vettore gnrit per ogni
-    %iterazione it
+    temp = zeros(length(y_un),1); 
+    temp(ik) = g_it; 
+    y_un = y_un-alpha*temp;
+    
+    %gnr is the gradient's norm, gnrit saves its value at each iteration
+
     gnr = norm(g);
     gnrit(it) = -gnr;
         
     % stopping criteria and test for termination
+
     if (it>=maxniter)
         break;
     end
 
-    switch stopcr  
+    switch stopcr
+
         case 1
             % continue if not yet reached target value fstop
             if (fy<=fstop)
                 break
             end
         case 2
+
             % stopping criterion based on the product of the 
             % gradient with the direction
             if (abs(gnr) <= eps)
                 break;
             end
         otherwise
+
             error('Unknown stopping criterion');
+            
     end % end of the stopping criteria switch
         
 

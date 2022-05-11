@@ -97,6 +97,7 @@ while (flagls==0)
             end
         otherwise
             error('Unknown stopping criterion');
+            
     end % end of the stopping criteria switch
     
          
