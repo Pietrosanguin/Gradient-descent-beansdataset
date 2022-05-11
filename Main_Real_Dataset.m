@@ -1,4 +1,4 @@
-T = readtable('Dry_Bean_Dataset_Final2.xlsx');
+T = readtable('Dry_Bean_Dataset.xlsx');
 T = table2array(T);
 R = readtable('Dry_Bean_Dataset_Complete.xlsx');
 R = table2array(R);
@@ -64,7 +64,7 @@ sigma = min(eigenvalues);
 
 
 fstop = 10000; % set to preferred value
-maxit = 10000; % set to preferred value
+maxit = 10; % set to preferred value
 
 
 disp('*****************');
@@ -78,18 +78,18 @@ disp('*****************');
 %%%%%%% CODE FOR RUNNING STANDARD GRADIENT DESCENT ALGORITHM
 
 [ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
-G_descent(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
+Gradient_Descent(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
 
 
 %%%%%%% CODE FOR RUNNING BCGD RANDOMIZED GRADIENT DESCENT ALGORITHM
 
 %[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
-%BCGD_rand(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
+%BCGD_Randomized(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
 
 %%%%%%% CODE FOR RUNNING BCGD CYCLIC GRADIENT DESCENT ALGORITHM
 
 %[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
-%BCGD_cyclic(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
+%BCGD_Cyclic(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
 
 
 % Print results:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -120,7 +120,7 @@ ylabel('err');
 % Plot cpu time vs accuracy 
 figure(4)
 plot(timeVecgm,accuracy,'r-') 
-xlim([0,timeVecgm(itergm)]); 
+xlim([0,timeVecgm(itergm-1)]); 
 xlabel('cpu time (s)');  
 ylabel('accuracy');
 
