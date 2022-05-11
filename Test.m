@@ -4,10 +4,6 @@ R = readtable('Dry_Bean_Dataset_Complete.xlsx');
 R = table2array(R);
 T(:,1) = []; %first column has been removed due to being the index column
 
-% outlier removal
-%T(22,:)=[];
-%T(1832,:)=[];
-
 
 X = T(:,1:2);
 X_un = T(T(:,3) == 0, 1:2);
@@ -23,13 +19,18 @@ y_un = T(T(:,3) == 0,3);
 
 Y_true = R(:,4);
 Y_true = Y_true(T(:,3) == 0, : );
-gamma = 50;
+gamma = 1000;
 
-% distance between labeled & unlabeled
+% Heaviside function
+hvsd = @(x) [0.5*(x == 0) + (x > 0)];
+
+% Distance between labeled & unlabeled
 w = exp(- gamma * pdist2(X_lab,X_un).^2);
 
-% distance between unlabeled & unlabeled 
+% Distance between unlabeled & unlabeled 
 w_bar =exp(- gamma * pdist2(X_un,X_un).^2);
+
+% Plot of the initial status of the data
 
 gscatter(T(:,1),T(:,2),T(:,3),"rcb");
 
@@ -68,7 +69,9 @@ sigma = min(eigenvalues);
 
 
 fstop = 40000;
-maxit = 20;
+maxit = 50;
+
+%0.97351
 
 disp('*****************');
 disp('*  GM STANDARD  *');
@@ -80,19 +83,19 @@ disp('*****************');
 
 
 %%%%%%% CODE FOR RUNNING STANDARD GRADIENT DESCENT ALGORITHM
-[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
-G_descent(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
+%[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
+%G_descent(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
 
 
 %%%%%%% CODE FOR RUNNING BCGD RANDOMIZED GRADIENT DESCENT ALGORITHM
 
-%[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
-%BCGD_rand(w,y_lab,w_bar,y_un,lc,verb,maxit,eps,fstop,stopcr);
+%[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
+%BCGD_rand(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
 
 %%%%%%% CODE FOR RUNNING BCGD CYCLIC GRADIENT DESCENT ALGORITHM
 
-%[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm]=...
-%BCGD_cyclic(w,y_lab,w_bar,y_un,lc,verb,maxit,eps,fstop,stopcr);
+[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
+BCGD_cyclic(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
 
 
 % Print results:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -140,8 +143,6 @@ xlim([0,timeVecgm(itergm-1)]);
 xlabel('time'); 
 %ylim([10^(-3),0.1]); 
 ylabel('accuracy');
-
-hvsd = @(x) [0.5*(x == 0) + (x > 0)];
 
 figure(5)
 gscatter(X_lab(:,1),X_lab(:,2),y_lab);

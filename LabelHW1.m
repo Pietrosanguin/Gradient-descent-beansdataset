@@ -189,7 +189,7 @@ hvsd = @(x) [0.5*(x == 0) + (x > 0)];
 %Questo plot dipende dalla funzione di attivazione 
 %hvsd e round producono due risultati diversi
 figure(5)
-gscatter(X_lab(:,1),X_lab(:,2),y_lab),"rcb";
+gscatter(X_lab(:,1),X_lab(:,2),y_lab,"rcb");
 grid on;
 title('Predicted clustering');
 hold on

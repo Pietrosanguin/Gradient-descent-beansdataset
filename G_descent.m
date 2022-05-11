@@ -35,7 +35,7 @@ timeVec(1) = 0;
 %sum1 e sum2 sono la somma di tre termini che escono dallo sviluppo dei
 %quadrati
 
-fy = 10000;
+%fy = 10000;
 
 it=1;
 alpha=1/lc;
@@ -52,7 +52,7 @@ while (flagls==0)
     else
         timeVec(it) = toc;
     end
-    fh(it)=fy;
+    
     
     % gradient evaluation
     
@@ -122,7 +122,8 @@ while (flagls==0)
     end
 
     fy=sum1 + 0.5*sum2;
-   
+    fh(it)=fy;
+
     accuracy(it) = sum(y_un_true == hvsd(y_un)-hvsd(-y_un),'all')/numel(y_un);
        
     if (verbosity>0)
