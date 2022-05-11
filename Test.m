@@ -2,7 +2,7 @@ T = readtable('Dry_Bean_Dataset_Final2.xlsx');
 T = table2array(T);
 R = readtable('Dry_Bean_Dataset_Complete.xlsx');
 R = table2array(R);
-T(:,1) = []; %first column has been removed due to being the index column
+T(:,1) = []; % First column has been removed due to being the index column
 
 
 X = T(:,1:2);
@@ -21,7 +21,7 @@ Y_true = R(:,4);
 Y_true = Y_true(T(:,3) == 0, : );
 gamma = 1000;
 
-% Heaviside function
+% Heavyside function
 hvsd = @(x) [0.5*(x == 0) + (x > 0)];
 
 % Distance between labeled & unlabeled
@@ -35,9 +35,7 @@ w_bar =exp(- gamma * pdist2(X_un,X_un).^2);
 gscatter(T(:,1),T(:,2),T(:,3),"rcb");
 
 
-
-%%
-%iterations' counter
+% Iterations' counter
 it = 1;
 
 % Optimality tolerance:
@@ -61,36 +59,32 @@ for a=1:length(y_un)
 end
 
 eigenvalues = eig(Hess);
-
-%Valore della Lipschitz constant dato a caso, bisogna calcolarlo come
-%massimo degli autovettori
 lc = max(eigenvalues);
 sigma = min(eigenvalues);
 
 
-fstop = 40000;
-maxit = 50;
+fstop = 10000; % set to preferred value
+maxit = 10000; % set to preferred value
 
-%0.97351
 
 disp('*****************');
 disp('*  GM STANDARD  *');
 disp('*****************');
 
-%ygm is the vector of predicted labels returned by the algorithm 
-%(cioè il minimo della funzione a cui sono interessato) ???
-%itergm è il numero di iterazioni fatte dal metodo
+%ygm is the vector of predicted labels returned by the algorithm
+%itergm is the number of iterations performed by the algorithm
 
 
 %%%%%%% CODE FOR RUNNING STANDARD GRADIENT DESCENT ALGORITHM
-%[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
-%G_descent(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
+
+[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
+G_descent(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
 
 
 %%%%%%% CODE FOR RUNNING BCGD RANDOMIZED GRADIENT DESCENT ALGORITHM
 
-[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
-BCGD_rand(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
+%[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
+%BCGD_rand(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
 
 %%%%%%% CODE FOR RUNNING BCGD CYCLIC GRADIENT DESCENT ALGORITHM
 
@@ -100,45 +94,42 @@ BCGD_rand(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
 
 % Print results:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 fprintf(1,'f(y)  = %10.3e\n',fxgm);
-%fprintf(1,'Number of non-zero components of x = %d\n',...
-%   sum((abs(xgm)>=0.000001)));
 fprintf(1,'Number of iterations = %d\n',itergm);
 fprintf(1,'||gr||^2 = %d\n',gnrgm(maxit));
 fprintf(1,'CPU time so far = %10.3e\n', tottimegm);
 
-
-%plot figure
 fmin= min(fhgm);
 
-% Uncomment for better error analysis
-%fmin =min(fhgm0);
 
-%plot figure
+% Plot of the results
+
+% Plot cpu time vs err
 figure(2)
-semilogy(timeVecgm,fhgm-fmin,'r-') %usa una scala logaritmica su y  
+semilogy(timeVecgm,fhgm-fmin,'r-') 
 xlabel('cpu time (s)'); 
 ylabel('err');
 
-%plot figure
+
+% Plot iter vs err
 figure(3)
-semilogy(fhgm-fmin,'r-')
-xlim([0,maxit]); 
+semilogy(fhgm-fmin,'r-') 
 xlabel('iter');  
 ylabel('err');
 
 
-%plot figure accuracy vs cpu time
+% Plot cpu time vs accuracy 
 figure(4)
 plot(timeVecgm,accuracy,'r-') 
 xlim([0,timeVecgm(itergm)]); 
-xlabel('cpu time (s)'); 
-ylim([0,1.1]); 
+xlabel('cpu time (s)');  
 ylabel('accuracy');
 
+
+% Plot predicted clustering
 figure(5)
-gscatter(X_lab(:,1),X_lab(:,2),y_lab);
+gscatter(X_lab(:,1),X_lab(:,2),y_lab,"rcb");
 grid on;
 title('Predicted clustering');
 hold on
-gscatter(X_un(:,1),X_un(:,2),hvsd(ygm)-hvsd(-ygm));
+gscatter(X_un(:,1),X_un(:,2),hvsd(ygm)-hvsd(-ygm),"rcb");
 hold off
