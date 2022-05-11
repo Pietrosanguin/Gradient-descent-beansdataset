@@ -89,13 +89,13 @@ disp('*****************');
 
 %%%%%%% CODE FOR RUNNING BCGD RANDOMIZED GRADIENT DESCENT ALGORITHM
 
-%[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
-%BCGD_rand(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
+[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
+BCGD_rand(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
 
 %%%%%%% CODE FOR RUNNING BCGD CYCLIC GRADIENT DESCENT ALGORITHM
 
-[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
-BCGD_cyclic(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
+%[ygm,itergm,fxgm,tottimegm,fhgm,timeVecgm,gnrgm,accuracy]=...
+%BCGD_cyclic(w,y_lab,w_bar,y_un,Y_true,lc,verb,maxit,eps,fstop,stopcr);
 
 
 % Print results:%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
@@ -115,33 +115,24 @@ fmin= min(fhgm);
 
 %plot figure
 figure(2)
-semilogy(timeVecgm,fhgm-fmin,'r-') %usa una scala logaritmica su y 
-title('Gradient Method  - objective function')
-legend('GM')
-%xlim([0,50]); 
-xlabel('time'); 
-%ylim([10^(-5),10^4]); 
+semilogy(timeVecgm,fhgm-fmin,'r-') %usa una scala logaritmica su y  
+xlabel('cpu time (s)'); 
 ylabel('err');
 
 %plot figure
 figure(3)
 semilogy(fhgm-fmin,'r-')
-title('Gradient Method  - objective function')
-legend('GM')
-%xlim([0,10000]); 
-xlabel('iter'); 
-%ylim([10^(-5),10^4]); 
+xlim([0,maxit]); 
+xlabel('iter');  
 ylabel('err');
 
 
 %plot figure accuracy vs cpu time
 figure(4)
 plot(timeVecgm,accuracy,'r-') 
-title('Gradient Method  - Accuracy')
-%legend('GM')
-xlim([0,timeVecgm(itergm-1)]); 
-xlabel('time'); 
-%ylim([10^(-3),0.1]); 
+xlim([0,timeVecgm(itergm)]); 
+xlabel('cpu time (s)'); 
+ylim([0,1.1]); 
 ylabel('accuracy');
 
 figure(5)
